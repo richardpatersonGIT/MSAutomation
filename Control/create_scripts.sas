@@ -94,18 +94,21 @@ filename tmp "&tmp\copy.bat";
 data _null_;
   file tmp linesize=300;
   set control2;
+  put "del " hostdirectory +(-1) "\healthchecklibrary_local\*.bat";
   put "copy &root\&hc_library\" healthcheck +(-1) ".bat " hostdirectory +(-1) "\healthchecklibrary_local\" healthcheck +(-1) ".bat"; 
   i=sleep(1);
 run;
-
-%put &=workpath;
 
 x "&tmp\copy.bat";
 
 %MEND copy_HC_to_local_deployment;
 
 
+
+
 %initialize_environment;
+
+
 %create_healthcheck_call_scripts;
 %copy_HC_to_local_deployment;
 
