@@ -83,6 +83,30 @@ quit;
 %MEND create_healthcheck_call_scripts;
 
 
+
+
+%MACRO cleanup_previous_run;
+
+data _null_;
+   call symput('tmp', sysget('TEMP'));
+run;
+
+filename tmp "&tmp\rm.bat"; 
+
+data _null_;
+  file tmp linesize=300;
+  set control2;
+  put "del " hostdirectory +(-1) "\healthchecklibrary_local\*.bat /y";
+  put "del " hostdirectory +(-1) "\Daily\*.* /y";
+  put "del " hostdirectory +(-1) "\Monthly\*.* /y";
+  i=sleep(1);
+run;
+
+x "&tmp\rm.bat";
+
+%MEND cleanup_previous_run;
+
+
 %MACRO copy_HC_to_local_deployment;
 
 data _null_;
@@ -94,7 +118,6 @@ filename tmp "&tmp\copy.bat";
 data _null_;
   file tmp linesize=300;
   set control2;
-  put "del " hostdirectory +(-1) "\healthchecklibrary_local\*.bat";
   put "copy &root\&hc_library\" healthcheck +(-1) ".bat " hostdirectory +(-1) "\healthchecklibrary_local\" healthcheck +(-1) ".bat"; 
   i=sleep(1);
 run;
@@ -107,8 +130,7 @@ x "&tmp\copy.bat";
 
 
 %initialize_environment;
-
-
+%cleanup_previous_run
 %create_healthcheck_call_scripts;
 %copy_HC_to_local_deployment;
 
