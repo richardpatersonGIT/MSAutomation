@@ -4,7 +4,7 @@
 
 proc sql;
      create table execution as
-     select customer, solution, host_name, configuration_name, configuration_directory, schedule_directory, healthcheck, param1, param2, param3, param4
+     select customer, solution, host_name, configuration_name, configuration_directory, schedule_directory, frequency, healthcheck, param1, param2, param3, param4
      from &syslast
 	 where active=1
 	 order by customer, solution, host_name, configuration_name, 
@@ -62,7 +62,7 @@ data control;
   hostdirectory=catt("&root.\&output\",translate(strip(customer),'_',' '),
                       "\",catt(translate(strip(solution),'_',' ')),
                       "\",translate(strip(host_name),'_',' '));
-  batchfile=catt(hostdirectory,'\Daily\',healthcheck,"_",configuration_name,"_",schedule_seq,'.bat');
+  batchfile=catt(hostdirectory,'\', frequency, '\',healthcheck,"_",configuration_name,"_",schedule_seq,'.bat');
   batchfileoutput=catt(healthcheck,"_",configuration_name,"_",schedule_seq,'.txt');
   if upcase(configuration_name)='FOUNDATION' then compute=quote(catt(configuration_directory,"\SASFoundation\9.4\sas.exe"));
   else if upcase(substr(configuration_name,1,3))='LEV' then compute=quote(catt(configuration_directory,"\SASApp\BatchServer\sasbatch.bat"));
@@ -70,7 +70,7 @@ data control;
   put compute=;
   put configuration_directory=;
   file script filevar=batchfile;
-  put "call " schedule_directory +(-1) "\healthchecklibrary_local\" healthcheck +(-1) ".bat " schedule_directory +(-1) "\Daily\\" +(-1) batchfileoutput compute configuration_directory param1 param2 param3 param4 +(-1);	
+  put "call " schedule_directory +(-1) "\healthchecklibrary_local\" healthcheck +(-1) ".bat " schedule_directory +(-1) "\" frequency +(-1) "\\" +(-1) batchfileoutput compute configuration_directory param1 param2 param3 param4 +(-1);	
 run;
 
 proc sql noprint;
