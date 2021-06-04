@@ -11,6 +11,7 @@ PROC SQL;
           t1.Param3, 
           t1.Param4, 
           t1.Active, 
+		  t1.frequency,
 		  t2.schedule_directory,
           t2.Configuration_directory
       FROM WORK.SCHEDULE t1
