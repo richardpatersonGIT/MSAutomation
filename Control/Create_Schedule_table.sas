@@ -11,6 +11,7 @@ PROC SQL;
           t1.Param3, 
           t1.Param4, 
           t1.Active, 
+		  t2.schedule_directory,
           t2.Configuration_directory
       FROM WORK.SCHEDULE t1
            LEFT JOIN WORK.ONBOARDING t2 ON (t1.Customer = t2.Customer) AND (t1.Solution = t2.Solution_Name) AND 
