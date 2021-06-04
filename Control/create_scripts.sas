@@ -4,7 +4,7 @@
 
 proc sql;
      create table execution as
-     select customer, solution, host_name, configuration_name, configuration_directory, healthcheck, param1, param2, param3, param4
+     select customer, solution, host_name, configuration_name, configuration_directory, schedule_directory, healthcheck, param1, param2, param3, param4
      from &syslast
 	 where active=1
 	 order by customer, solution, host_name, configuration_name, 
@@ -70,7 +70,7 @@ data control;
   put compute=;
   put configuration_directory=;
   file script filevar=batchfile;
-  put "call " hostdirectory +(-1) "\healthchecklibrary_local\" healthcheck +(-1) ".bat " batchfileoutput compute configuration_directory param1 param2 param3 param4 +(-1);	
+  put "call " schedule_directory +(-1) "\healthchecklibrary_local\" healthcheck +(-1) ".bat " schedule_directory +(-1) "\Daily\\" +(-1) batchfileoutput compute configuration_directory param1 param2 param3 param4 +(-1);	
 run;
 
 proc sql noprint;
@@ -95,10 +95,13 @@ filename tmp "&tmp\rm.bat";
 
 data _null_;
   file tmp linesize=300;
-  set control2;
-  put "del " hostdirectory +(-1) "\healthchecklibrary_local\*.bat /y";
-  put "del " hostdirectory +(-1) "\Daily\*.* /y";
-  put "del " hostdirectory +(-1) "\Monthly\*.* /y";
+  set execution;
+  hostdirectory=catt("&root.\&output\",translate(strip(customer),'_',' '),
+                      "\",catt(translate(strip(solution),'_',' ')),
+                      "\",translate(strip(host_name),'_',' '));
+  put "del " hostdirectory +(-1) "\healthchecklibrary_local\*.bat /Q";
+  put "del " hostdirectory +(-1) "\Daily\*.* /Q";
+  put "del " hostdirectory +(-1) "\Monthly\*.* /Q";
   i=sleep(1);
 run;
 
@@ -130,7 +133,7 @@ x "&tmp\copy.bat";
 
 
 %initialize_environment;
-%cleanup_previous_run
+%cleanup_previous_run;
 %create_healthcheck_call_scripts;
 %copy_HC_to_local_deployment;
 
